@@ -5,7 +5,7 @@
 [![LoRa](https://img.shields.io/badge/Module-SX1278-green)](https://www.semtech.com/products/wireless-rf/lora-connect/sx1278#)
 [![Language](https://img.shields.io/badge/Language-C%2B%2B%20%7C%20Arduino-orange)](#https://docs.arduino.cc/arduino-cloud/guides/arduino-c/)
 [![License](https://img.shields.io/badge/License-MIT-lightgrey)](#https://opensource.org/license/mit)
-[![VIDEO Demo](https://img.shields.io/badge/Watch-Demo-red?logo=youtube)](#demo)
+[![VIDEO Demo](https://img.shields.io/badge/Watch-Demo-red?logo=youtube)](https://drive.google.com/file/d/1w4CoAyrYkdDPH6CXtkASXW0NoOLKaA-y/view?usp=drivesdk)
 
 ---
 
@@ -80,4 +80,21 @@ cd SilentCom
 3.Upload transmitter and receiver code
 4.Test tap detection and LoRa communication in Serial Monitor
 
+---
+
+##🔋 Power Optimization
+
+SilentCom uses:
+
+Deep Sleep cycles between messages
+Interrupt-based tap wake-up
+Optimized LoRa duty cycles
+Result → ultra-low power consumption suitable for long missions.
+
+🔒 Future Enhancements
+
+📲 Android App for Morse-to-Text decoding
+🧭 Multi-node mesh network for team comms
+🎧 Richer haptic patterns for different message types
+⚙️ AES-level encryption layer for tactical security
 
