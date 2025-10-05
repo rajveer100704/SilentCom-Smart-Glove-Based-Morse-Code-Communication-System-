@@ -3,8 +3,8 @@
 
 [![Platform](https://img.shields.io/badge/Platform-ESP8266-blue)](https://en.wikipedia.org/wiki/ESP8266)
 [![LoRa](https://img.shields.io/badge/Module-SX1278-green)](https://www.semtech.com/products/wireless-rf/lora-connect/sx1278#)
-[![Language](https://img.shields.io/badge/Language-C%2B%2B%20%7C%20Arduino-orange)](#)
-[![License](https://img.shields.io/badge/License-MIT-lightgrey)](#)
+[![Language](https://img.shields.io/badge/Language-C%2B%2B%20%7C%20Arduino-orange)](#https://docs.arduino.cc/arduino-cloud/guides/arduino-c/)
+[![License](https://img.shields.io/badge/License-MIT-lightgrey)](#https://opensource.org/license/mit)
 [![VIDEO Demo](https://img.shields.io/badge/Watch-Demo-red?logo=youtube)](#demo)
 
 ---
@@ -17,7 +17,7 @@ It allows users to transmit **Morse code-based messages** using **finger taps**,
 
 ## 🎥 Project Demonstration
 
-> 🎬 **YouTube Video:** [Watch the Live Demo](https://youtu.be/YOUR_VIDEO_LINK)
+> 🎬 **Video:** [Watch the Live Demo](https://youtu.be/YOUR_VIDEO_LINK)
 
 ---
 
