@@ -91,10 +91,15 @@ Interrupt-based tap wake-up
 Optimized LoRa duty cycles
 Result → ultra-low power consumption suitable for long missions.
 
-🔒 Future Enhancements
+##🔒 Future Enhancements
 
 📲 Android App for Morse-to-Text decoding
 🧭 Multi-node mesh network for team comms
 🎧 Richer haptic patterns for different message types
 ⚙️ AES-level encryption layer for tactical security
 
+
+##👨‍💻 Author
+
+Rajveer Singh Saggu
+Electronics & AI Systems Engineer
