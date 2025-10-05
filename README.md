@@ -17,7 +17,7 @@ It allows users to transmit **Morse code-based messages** using **finger taps**,
 
 ## 🎥 Project Demonstration
 
-> 🎬 **Video:**[SilentCom](https://drive.google.com/file/d/1w4CoAyrYkdDPH6CXtkASXW0NoOLKaA-y/view?usp=drivesdk))
+> 🎬 **Video:**([SilentCom](https://drive.google.com/file/d/1w4CoAyrYkdDPH6CXtkASXW0NoOLKaA-y/view?usp=drivesdk))
 
 ---
 
