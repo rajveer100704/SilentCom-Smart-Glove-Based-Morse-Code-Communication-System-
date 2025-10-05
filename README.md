@@ -58,4 +58,52 @@ It allows users to transmit **Morse code-based messages** using **finger taps**,
         ↓
 [LED / Haptic Feedback]
 
-'''🛰️ The transmitter detects tap patterns → encodes as Morse → sends via LoRa SX1278 → receiver decodes and provides feedback.
+🛰️ The transmitter detects tap patterns → encodes as Morse → sends via LoRa SX1278 → receiver decodes and provides feedback.
+---
+
+## 🚀 Getting Started
+🔧 Prerequisites
+
+Arduino IDE
+
+ESP8266 board package
+
+LoRa Library (by Sandeep Mistry)
+
+Basic Morse understanding
+
+📥 Setup
+# Clone repository
+git clone https://github.com/rajveer100704/SilentCom.git
+cd SilentCom
+
+
+Open SilentCom.ino in Arduino IDE
+
+Connect ESP8266 + LoRa SX1278
+
+Upload transmitter and receiver code
+
+Test tap detection and LoRa communication in Serial Monitor
+
+🔋 Power Optimization
+
+SilentCom uses:
+
+Deep Sleep cycles between messages
+
+Interrupt-based tap wake-up
+
+Optimized LoRa duty cycles
+
+Result → ultra-low power consumption suitable for long missions.
+
+🔒 Future Enhancements
+
+📲 Android App for Morse-to-Text decoding
+
+🧭 Multi-node mesh network for team comms
+
+🎧 Richer haptic patterns for different message types
+
+⚙️ AES-level encryption layer for tactical security
