@@ -1,0 +1,45 @@
+# ===== Arduino IDE Build Files =====
+*.bin
+*.elf
+*.hex
+*.eep
+*.map
+
+# Arduino build directories
+/build/
+/*.cpp.d
+/*.cpp.o
+/*.ino.cpp
+
+# ===== Backup / Temp Files =====
+*.bak
+*.tmp
+*.swp
+*.swo
+*.orig
+
+# ===== OS-specific Files =====
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Icon?
+
+# ===== Logs =====
+*.log
+
+# ===== User Config / Private =====
+*.user
+*.code-workspace
+
+# ===== Library Cache / Dependency Folders =====
+libraries/
+data/
+cache/
+esp8266/
+
+# ===== Python Cache (if helper scripts are added) =====
+__pycache__/
+*.pyc
+*.pyo
+.env/
+.venv/
