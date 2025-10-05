@@ -75,3 +75,9 @@ It allows users to transmit **Morse code-based messages** using **finger taps**,
 git clone https://github.com/rajveer100704/SilentCom.git
 cd SilentCom
 
+1.Open SilentCom.ino in Arduino IDE
+2.Connect ESP8266 + LoRa SX1278
+3.Upload transmitter and receiver code
+4.Test tap detection and LoRa communication in Serial Monitor
+
+
