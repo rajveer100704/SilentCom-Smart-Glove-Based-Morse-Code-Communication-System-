@@ -2,7 +2,7 @@
 ### Smart Glove-Based Morse Code Communication System for Soldiers  
 
 [![Platform](https://img.shields.io/badge/Platform-ESP8266-blue)](https://en.wikipedia.org/wiki/ESP8266)
-[![LoRa](https://img.shields.io/badge/Module-SX1278-green)](#)
+[![LoRa](https://img.shields.io/badge/Module-SX1278-green)](https://www.semtech.com/products/wireless-rf/lora-connect/sx1278#)
 [![Language](https://img.shields.io/badge/Language-C%2B%2B%20%7C%20Arduino-orange)](#)
 [![License](https://img.shields.io/badge/License-MIT-lightgrey)](#)
 [![VIDEO Demo](https://img.shields.io/badge/Watch-Demo-red?logo=youtube)](#demo)
