@@ -1,0 +1,228 @@
+// Required library: AESLib
+// Install via Arduino Library Manager: "AESLib"
+// ---------------------------------------------------------------------------
+
+#include <SPI.h>
+#include <LoRa.h>
+#include <AESLib.h>   // AES library
+
+// LoRa Pins (NodeMCU v3 ESP8266)
+#define LORA_SS   15   // D8
+#define LORA_RST  16   // D0
+#define LORA_DIO0 4    // D2
+
+#define OUTPUT_PIN 5        // D1 (GPIO5)
+#define LED_BUILTIN_PIN 2   // NodeMCU built-in LED
+#define INPUT_PIN A0        // FSR/Button
+
+// Thresholds
+const int PRESS_TH_HI = 600;
+const int PRESS_TH_LO = 400;
+
+// Morse timing
+#define UNIT 100
+const unsigned long DOT_TIME = 600;
+const unsigned long SWITCH_TIME = 5000; // 5 sec
+
+// State vars
+bool isTxMode = true;
+bool isPressed = false;
+unsigned long pressStart = 0;
+unsigned long lastTxTime = 0;
+unsigned long highStart = 0;
+bool wasHigh = false;
+
+// Ack control
+bool ackPending = false;
+unsigned long ackStartTime = 0;
+
+// ===== AES setup =====
+AESLib aesLib;
+byte aes_key[16] = {
+  0x00,0x01,0x02,0x03, 0x04,0x05,0x06,0x07,
+  0x08,0x09,0x0A,0x0B, 0x0C,0x0D,0x0E,0x0F
+};
+byte aes_iv[16] = {
+  0x0F,0x0E,0x0D,0x0C, 0x0B,0x0A,0x09,0x08,
+  0x07,0x06,0x05,0x04, 0x03,0x02,0x01,0x00
+};
+
+#define ENC_BUF_SIZE 32
+
+// ===== AES helpers =====
+int encryptCharToBuffer(char c, uint8_t *outBuf, int outBufSize) {
+  byte plain[1];
+  plain[0] = (byte)c;
+  byte iv[16];
+  memcpy(iv, aes_iv, 16);
+  uint16_t encLen = aesLib.encrypt(plain, 1, outBuf, aes_key, 128, iv);
+  if (encLen <= 0 || encLen > outBufSize) return 0;
+  return encLen;
+}
+
+int decryptBufferToChar(uint8_t *encBuf, int encLen, char *outChar) {
+  byte iv[16];
+  memcpy(iv, aes_iv, 16);
+  byte tmpDec[ENC_BUF_SIZE];
+  uint16_t decLen = aesLib.decrypt(encBuf, encLen, tmpDec, aes_key, 128, iv);
+  if (decLen <= 0) return 0;
+  *outChar = (char)tmpDec[0];
+  return 1;
+}
+
+// ===== Send packet =====
+void sendPacket(char c) {
+  uint8_t enc[ENC_BUF_SIZE];
+  int encLen = encryptCharToBuffer(c, enc, sizeof(enc));
+  if (encLen <= 0) {
+    Serial.println("Encryption failed, not sending.");
+    return;
+  }
+  LoRa.beginPacket();
+  LoRa.write(enc, encLen);
+  LoRa.endPacket();
+  Serial.print("TX (enc) -> ");
+  Serial.print(encLen);
+  Serial.print(" bytes, orig: ");
+  Serial.println(c);
+  lastTxTime = millis();
+}
+
+// ===== TX mode =====
+bool waitingForY = false;
+unsigned long waitYStart = 0;
+
+void handleTransmit() {
+  int fsrVal = analogRead(INPUT_PIN);
+
+  if (!isPressed && fsrVal > PRESS_TH_HI) {
+    isPressed = true;
+    pressStart = millis();
+  }
+  if (isPressed && fsrVal < PRESS_TH_LO) {
+    unsigned long dur = millis() - pressStart;
+    isPressed = false;
+    char symbol = (dur < DOT_TIME) ? '.' : '_';
+    sendPacket(symbol);
+  }
+
+  // idle for 5s → switch to RX
+  if ((millis() - lastTxTime) > SWITCH_TIME && !isPressed) {
+    sendPacket('s');  // notify end
+    Serial.println("TX -> sent switch 's', entering RX in 200ms");
+    delay(200);
+    isTxMode = false;
+    digitalWrite(LED_BUILTIN_PIN, HIGH); // LED OFF
+    // start 1s window to wait for 'y'
+    waitingForY = true;
+    waitYStart = millis();
+  }
+}
+
+// ===== RX mode =====
+void handleReceive() {
+  int packetSize = LoRa.parsePacket();
+  if (packetSize) {
+    uint8_t encBuf[ENC_BUF_SIZE];
+    int idx = 0;
+    while (LoRa.available() && idx < (int)sizeof(encBuf)) {
+      encBuf[idx++] = (uint8_t)LoRa.read();
+    }
+    char symbol = 0;
+    if (decryptBufferToChar(encBuf, idx, &symbol)) {
+      Serial.print("RX -> decrypted symbol: ");
+      Serial.println(symbol);
+
+      if (symbol == '.' || symbol == '_') {
+        digitalWrite(OUTPUT_PIN, HIGH);
+        delay(symbol == '.' ? UNIT : 450);
+        digitalWrite(OUTPUT_PIN, LOW);
+        delay(UNIT);
+      }
+      else if (symbol == 's' && !ackPending) {
+        Serial.println("RX -> received 's', scheduling ACK");
+        ackPending = true;
+        ackStartTime = millis();
+      }
+      else if (waitingForY && symbol == 'y') {
+        digitalWrite(OUTPUT_PIN, HIGH);
+        delay(500);
+        digitalWrite(OUTPUT_PIN, LOW);
+        Serial.println("RX -> got confirmation 'y'");
+        Serial.println("Communication successful ✅");
+        waitingForY = false; // stop waiting
+      }
+    }
+  }
+
+  // send 'y' after 200ms if 's' was received
+  if (ackPending && millis() - ackStartTime >= 200) {
+    sendPacket('y');
+    Serial.println("ACK -> Sent 'y'");
+    ackPending = false;
+  }
+
+  // if TX side is waiting for 'y', timeout after 1 sec
+  if (waitingForY && (millis() - waitYStart >= 1000)) {
+    digitalWrite(OUTPUT_PIN, HIGH);
+    delay(500);
+    digitalWrite(OUTPUT_PIN, LOW);
+    delay(100);
+    digitalWrite(OUTPUT_PIN, HIGH);
+    delay(500);
+    digitalWrite(OUTPUT_PIN, LOW);
+    delay(100);
+    digitalWrite(OUTPUT_PIN, HIGH);
+    delay(500);
+    digitalWrite(OUTPUT_PIN, LOW);
+    Serial.println("Communication unsuccessful ❌ (no 'y' received)");
+
+    waitingForY = false;
+  }
+
+  // allow TX again after input high for 4s
+  int fsrVal = analogRead(INPUT_PIN);
+  if (fsrVal > PRESS_TH_HI) {
+    if (!wasHigh) {
+      wasHigh = true;
+      highStart = millis();
+    } else if (millis() - highStart >= 3000) {
+      Serial.println("RX -> timeout 6s, switching to TX");
+      isTxMode = true;
+      digitalWrite(LED_BUILTIN_PIN, LOW);
+      wasHigh = false;
+    }
+  } else {
+    wasHigh = false;
+  }
+}
+
+void setup() {
+  Serial.begin(115200);
+  while (!Serial);
+
+  pinMode(OUTPUT_PIN, OUTPUT);
+  digitalWrite(OUTPUT_PIN, LOW);
+  pinMode(LED_BUILTIN_PIN, OUTPUT);
+
+  LoRa.setPins(LORA_SS, LORA_RST, LORA_DIO0);
+  if (!LoRa.begin(433E6)) {
+    Serial.println("LoRa init failed.");
+    while (1);
+  }
+
+  Serial.println("LoRa init success");
+  digitalWrite(LED_BUILTIN_PIN, LOW);
+  randomSeed(analogRead(A0) ^ millis());
+}
+
+void loop() {
+  if (isTxMode) {
+    digitalWrite(LED_BUILTIN_PIN, LOW);
+    handleTransmit();
+  } else {
+    digitalWrite(LED_BUILTIN_PIN, HIGH);
+    handleReceive();
+  }
+  delay(5);
+}
